@@ -1,0 +1,127 @@
+{
+ "steps": [
+  {
+   "t": "Assembled detector with both films",
+   "d": "Finished stack with the two films lifted above it. <b>M1</b> (insulation) leaves the green frame out to 1 mm from the glass edge, plus a thin line on the edge of the active zone and of the pad. <b>M2</b> (Dynamask) leaves the blue wall and the 138 pillars. The wall is a rectangle around the active zone and the pad together, and it fills the corner beside the pad. M1 and M2 overlap by 0.25 mm on each side of the wall. The pad window is open in both films, so the mesh is bare there for the chamber contact.",
+   "show": [
+    "glass",
+    "insFrame",
+    "wall",
+    "pillars",
+    "meshCut",
+    "filmM1",
+    "filmM2",
+    "marks"
+   ]
+  },
+  {
+   "t": "Clean glass",
+   "d": "Bare 95 × 95 mm glass. The dashed rectangle is the 73 × 63.5 active zone, 11 mm from the left and right edges and 10 mm from the top edge. The orange outline is the 15 × 7 mesh contact pad, 9.5 mm from the bottom edge and 5 mm below the active zone.",
+   "show": [
+    "glass",
+    "marks"
+   ]
+  },
+  {
+   "t": "Laminate the insulation film",
+   "d": "The insulation photoresist covers the glass up to the 93 × 93 mm insulation edge. It is unexposed, so it would all wash off if developed now.",
+   "show": [
+    "glass",
+    "insSheet",
+    "marks"
+   ]
+  },
+  {
+   "t": "Expose through M1",
+   "d": "M1 is aligned on the glass with the four crosses and exposed. UV passes through the clear parts (the outer frame and the thin lines around the active zone and the pad) and hardens the film there. The active zone, the pad and the rectangle left for the M2 wall stay dark.",
+   "show": [
+    "glass",
+    "insSheet",
+    "filmM1",
+    "uv",
+    "marks"
+   ]
+  },
+  {
+   "t": "Develop the insulation",
+   "d": "The unexposed film dissolves. What stays is the green frame and the thin edge lines. Inside the rectangle around the active zone and the pad, the glass is bare, waiting for the Dynamask wall.",
+   "show": [
+    "glass",
+    "insFrame",
+    "marks"
+   ]
+  },
+  {
+   "t": "Laminate Dynamask and the mesh",
+   "d": "Dynamask is laminated, the mesh is laid on it (larger than the glass for now) and covered by the top Dynamask layer. The layers under the mesh set the 150 µm gap.",
+   "show": [
+    "glass",
+    "insFrame",
+    "dynaSheet",
+    "meshFull",
+    "marks"
+   ]
+  },
+  {
+   "t": "Expose through M2",
+   "d": "M2 is aligned with the same crosses and exposed. Clear on M2: the wall (from 0.3 mm outside the active zone and the pad out to a rectangle 2.95 mm outside both, filling the corner beside the pad) and the 138 pillars, Ø0.5 mm on a hexagonal grid, 6 mm between neighbours. The wall overlaps the insulation by 0.25 mm on both sides, so there is no unexposed seam even with a small misalignment.",
+   "show": [
+    "glass",
+    "insFrame",
+    "dynaSheet",
+    "meshFull",
+    "filmM2",
+    "uv",
+    "marks"
+   ]
+  },
+  {
+   "t": "Develop the Dynamask",
+   "d": "The developer reaches the unexposed Dynamask through the mesh openings and removes it. The mesh is left suspended on the pillars and held by the wall all around the active zone and the pad. In the pad window the mesh is bare. Outside the wall it is loose and gets cut off.",
+   "show": [
+    "glass",
+    "insFrame",
+    "wall",
+    "pillars",
+    "meshFull",
+    "marks"
+   ]
+  },
+  {
+   "t": "Cut the mesh",
+   "d": "Four straight cuts: a plain rectangle along the middle of the outer wall, enclosing the active zone and the pad, with no pocket around the pad. The mesh stays one piece from the active zone to the contact window and its edge sits on the wall all around. The chamber contact presses on the mesh through the pad window.",
+   "show": [
+    "glass",
+    "insFrame",
+    "wall",
+    "pillars",
+    "meshCut",
+    "marks"
+   ]
+  }
+ ],
+ "legend": [
+  [
+   "--insul",
+   "Insulation film, kept where M1 is clear"
+  ],
+  [
+   "--dyna",
+   "Dynamask wall and pillars, kept where M2 is clear"
+  ],
+  [
+   "--mesh",
+   "Mesh (red line: the rectangular cut, along the middle of the outer wall)"
+  ],
+  [
+   "--pad",
+   "Mesh contact pad (15 × 7 opening)"
+  ],
+  [
+   "--accent",
+   "UV exposure"
+  ]
+ ],
+ "note": "Thicknesses are illustrative and drawn exaggerated; only the 150 µm amplification gap is from the P2 bulk order. The step order is the assumed two-film flow and should be checked with the CERN workshop.",
+ "sub": "95 × 95 mm glass · two-film bulk (M1 insulation, M2 Dynamask) · geometry read from the generated Gerbers"
+}

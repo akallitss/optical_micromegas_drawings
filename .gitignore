@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+# rebuilt by tools/build_viewer.py
+viewer/*_geometry.json
+viewer/*_3D.html

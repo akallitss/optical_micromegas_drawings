@@ -1,0 +1,339 @@
+<title>__TITLE__</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600&family=Barlow:wght@400;500&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+/* Layout: one working bench — the 3D stack fills the left, the process sheet runs down the right (stacks on phones). */
+:root {
+  --bg: #eef1f3;
+  --surface: #ffffff;
+  --fg: #1b2228;
+  --muted: #5d6973;
+  --line: #d3dade;
+  --accent: #6b3fd6;          /* UV exposure violet */
+  --insul: #1f8a6c;           /* insulation film (M1) */
+  --dyna: #2f6fd0;            /* Dynamask wall + pillars (M2) */
+  --mesh: #8a939b;
+  --pad: #e07a1f;
+  --scene: #e4e8eb;
+  --font-display: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12161a; --surface: #1a2026; --fg: #e3e8ec; --muted: #94a0aa; --line: #2c343c;
+    --accent: #a58bff; --insul: #3cc29b; --dyna: #6aa1ff; --mesh: #b5bec6; --pad: #f2994a; --scene: #161b20;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12161a; --surface: #1a2026; --fg: #e3e8ec; --muted: #94a0aa; --line: #2c343c;
+  --accent: #a58bff; --insul: #3cc29b; --dyna: #6aa1ff; --mesh: #b5bec6; --pad: #f2994a; --scene: #161b20;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--fg); font: 15px/1.5 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 16px;
+}
+.wrap { max-width: 1400px; margin: 0 auto; display: grid; gap: 14px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
+h1 { font: 600 1.6rem/1.15 var(--font-display); margin: 0; letter-spacing: .01em; text-wrap: balance; }
+.sub { color: var(--muted); font-size: .9rem; }
+.bench { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 14px; align-items: start; }
+@media (max-width: 900px) { .bench { grid-template-columns: minmax(0, 1fr); } }
+.stage { position: relative; background: var(--scene); border: 1px solid var(--line); border-radius: 6px; overflow: hidden;
+  height: min(74vh, 720px); min-height: 360px; }
+@media (max-width: 900px) { .stage { height: 62vh; } }
+#c { display: block; width: 100%; height: 100%; touch-action: none; }
+.hint { position: absolute; left: 10px; bottom: 8px; font: 12px var(--font-mono); color: var(--muted); pointer-events: none; }
+.stepbadge { position: absolute; left: 12px; top: 10px; right: 12px; font: 600 1.05rem var(--font-display); pointer-events: none; }
+.panel { display: grid; gap: 14px; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; min-width: 0; }
+.label { font: 600 .72rem var(--font-display); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+ol.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; counter-reset: s; }
+ol.steps button {
+  width: 100%; text-align: left; display: grid; grid-template-columns: 2.1em 1fr; gap: 6px; align-items: baseline;
+  background: transparent; border: 1px solid transparent; border-radius: 4px; padding: 6px 8px; color: var(--fg);
+  font: 500 .95rem var(--font-body); cursor: pointer;
+}
+ol.steps button:hover { border-color: var(--line); }
+ol.steps button[aria-current="step"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 9%, transparent); }
+ol.steps button:focus-visible, .ctl input:focus-visible, .nav button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+ol.steps .n { font: 12px var(--font-mono); color: var(--muted); }
+.desc { margin: 0; font-size: .93rem; max-width: 65ch; }
+.desc b { font-weight: 500; }
+.nav { display: flex; gap: 8px; margin-top: 10px; }
+.nav button { flex: 1; padding: 7px 10px; border-radius: 4px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); font: 500 .9rem var(--font-body); cursor: pointer; }
+.nav button:hover { border-color: var(--accent); }
+.ctl { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; font-size: .9rem; }
+.ctl input[type=range] { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); }
+.ctl output { font: 12px var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.legend { display: grid; gap: 6px; font-size: .88rem; margin: 0; padding: 0; list-style: none; }
+.legend li { display: grid; grid-template-columns: 14px 1fr; gap: 8px; align-items: center; }
+.sw { width: 14px; height: 14px; border-radius: 2px; border: 1px solid var(--line); }
+.dims { font: 12px/1.6 var(--font-mono); color: var(--muted); margin: 0; font-variant-numeric: tabular-nums; }
+.note { font-size: .84rem; color: var(--muted); margin: 0; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1 id="heading"></h1>
+    <span class="sub" id="subline"></span>
+  </header>
+  <div class="bench">
+    <div class="stage">
+      <canvas id="c" aria-label="3D view of the substrate, resist layers, mesh and mask films"></canvas>
+      <div class="stepbadge" id="badge"></div>
+      <div class="hint">drag: rotate · right-drag: pan · wheel: zoom</div>
+    </div>
+    <div class="panel">
+      <section class="card">
+        <p class="label">Process (assumed sequence)</p>
+        <ol class="steps" id="steps"></ol>
+        <div class="nav"><button id="prev" type="button">← Previous</button><button id="next" type="button">Next →</button></div>
+      </section>
+      <section class="card">
+        <p class="label">This step</p>
+        <p class="desc" id="desc"></p>
+      </section>
+      <section class="card">
+        <p class="label">View</p>
+        <div class="ctl">
+          <label for="explode">Layer separation</label><output id="explodeOut"></output>
+          <input type="range" id="explode" min="0" max="25" step="0.5" value="9">
+          <label for="exag">Film thickness ×</label><output id="exagOut"></output>
+          <input type="range" id="exag" min="1" max="60" step="1" value="25">
+        </div>
+      </section>
+      <section class="card">
+        <p class="label">Legend</p>
+        <ul class="legend" id="legend"></ul>
+      </section>
+      <section class="card">
+        <p class="label">Dimensions (mm)</p>
+        <p class="dims" id="dims"></p>
+      </section>
+      <p class="note" id="note"></p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const D = __DATA__;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+// real thicknesses in mm (illustrative except the gap)
+const T = { glass: 1.1, ins: 0.10, gap: 0.15, cover: 0.05, mesh: 0.03 };
+
+const STEPS = D.steps;
+
+// ---------- scene ----------
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(38, 1, 0.5, 2000);
+camera.up.set(0, 0, 1);
+camera.position.set(-150, -235, 185);
+const controls = new THREE.OrbitControls(camera, canvas);
+controls.target.set(0, 0, 22);
+controls.enableDamping = true;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 0.85));
+const sun = new THREE.DirectionalLight(0xffffff, 0.75); sun.position.set(-60, -90, 160); scene.add(sun);
+
+const col = n => new THREE.Color(css(n));
+const mats = {};
+mats.glass = new THREE.MeshPhysicalMaterial({ color: 0xbfe3ea, transparent: true, opacity: 0.38, roughness: 0.08, metalness: 0 });
+mats.ins = new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.92, roughness: 0.55 });
+mats.insSheet = new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.55, roughness: 0.55 });
+mats.dyna = new THREE.MeshStandardMaterial({ roughness: 0.5 });
+mats.dynaSheet = new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.32, roughness: 0.5, depthWrite: false });
+mats.pad = new THREE.LineBasicMaterial();
+mats.act = new THREE.LineDashedMaterial({ dashSize: 1.5, gapSize: 1.2 });
+mats.uv = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.16, depthWrite: false, side: THREE.DoubleSide });
+// material key -> colour token
+const TOKENS = { ins: '--insul', insSheet: '--insul', dyna: '--dyna', dynaSheet: '--dyna', pad: '--pad', act: '--muted', uv: '--accent' };
+
+function shapeOf(poly) {
+  const s = new THREE.Shape(poly.ext.map(p => new THREE.Vector2(p[0], p[1])));
+  poly.holes.forEach(h => s.holes.push(new THREE.Path(h.map(p => new THREE.Vector2(p[0], p[1])))));
+  return s;
+}
+function extruded(polys, mat) {
+  const g = new THREE.ExtrudeGeometry(polys.map(shapeOf), { depth: 1, bevelEnabled: false, curveSegments: 1 });
+  return new THREE.Mesh(g, mat);
+}
+
+// everything is drawn in a group scaled so the detector spans ~110 units in x/y; z stays in mm
+const S = 110 / D.span;
+const G = new THREE.Group(); G.scale.set(S, S, 1); G.position.set(-D.center[0] * S, -D.center[1] * S, 0); scene.add(G);
+const poly = pts => ({ ext: pts, holes: [] });
+const O = {};
+if (D.substrate === 'pcb') mats.glass = new THREE.MeshStandardMaterial({ color: 0x3f7a4c, transparent: true, opacity: 0.9, roughness: 0.6 });
+O.glass = extruded([poly(D.board)], mats.glass);
+O.glass.scale.z = D.sub_thick; O.glass.position.z = -D.sub_thick;
+O.glassEdge = new THREE.LineSegments(new THREE.EdgesGeometry(O.glass.geometry, 20), new THREE.LineBasicMaterial({ color: D.substrate === 'pcb' ? 0x2b5233 : 0x6f9aa6 }));
+O.glass.add(O.glassEdge);
+O.insSheet = extruded([poly(D.sheet)], mats.insSheet);
+O.insFrame = extruded(D.m1, mats.ins);
+O.dynaSheet = extruded([poly(D.sheet)], mats.dynaSheet);
+O.wall = extruded(D.m2, mats.dyna);
+O.pillars = new THREE.Group();
+D.pillars.forEach(grp => {
+  const g = new THREE.CylinderGeometry(grp.d / 2, grp.d / 2, 1, grp.pts.length > 2000 ? 8 : 20).rotateX(Math.PI / 2).translate(0, 0, 0.5);
+  const im = new THREE.InstancedMesh(g, mats.dyna, grp.pts.length);
+  const m = new THREE.Matrix4();
+  grp.pts.forEach((p, i) => { m.makeTranslation(p[0], p[1], 0); im.setMatrixAt(i, m); });
+  O.pillars.add(im);
+});
+function meshTexture(repeat) {
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const x = c.getContext('2d'); x.strokeStyle = 'rgba(205,212,218,0.95)'; x.lineWidth = 7;
+  x.beginPath(); x.moveTo(0, 0.5); x.lineTo(64, 0.5); x.moveTo(0.5, 0); x.lineTo(0.5, 64); x.stroke();
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(repeat, repeat);
+  t.anisotropy = renderer.capabilities.getMaxAnisotropy(); return t;
+}
+const meshMat = repeat => new THREE.MeshStandardMaterial({ map: meshTexture(repeat), transparent: true, metalness: 0.6, roughness: 0.35,
+  side: THREE.DoubleSide, depthWrite: false, color: 0xffffff });
+const CELL = 1.2;   // drawn mesh cell, in view units
+{
+  const [x0, y0, x1, y1] = D.mesh_full, w = x1 - x0, h = y1 - y0;
+  const p = new THREE.Mesh(new THREE.PlaneGeometry(w, h), meshMat(1));
+  p.material.map.repeat.set(w * S / CELL, h * S / CELL);
+  p.geometry.translate((x0 + x1) / 2, (y0 + y1) / 2, 0);
+  p.add(new THREE.LineSegments(new THREE.EdgesGeometry(p.geometry), new THREE.LineBasicMaterial({ color: 0x8a939b })));
+  O.meshFull = p;
+}
+const outline = (pts, mat, z = 0) => {
+  const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts.concat([pts[0]]).map(p => new THREE.Vector3(p[0], p[1], z))), mat);
+  l.computeLineDistances(); return l;
+};
+{
+  const shape = new THREE.Shape(D.cut.map(p => new THREE.Vector2(p[0], p[1])));
+  O.meshCut = new THREE.Mesh(new THREE.ShapeGeometry(shape), meshMat(S / CELL));
+  O.meshCut.add(outline(D.cut, new THREE.LineBasicMaterial({ color: 0xc0392b })));
+  if (D.cut_alt) O.meshCut.add(outline(D.cut_alt, new THREE.LineDashedMaterial({ color: 0xc0392b, dashSize: 6 / S, gapSize: 4 / S })));
+}
+function film(src) {
+  const [x0, y0, x1, y1] = D.film;
+  const tex = new THREE.TextureLoader().load(src); tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  const p = new THREE.Mesh(new THREE.PlaneGeometry(x1 - x0, y1 - y0).translate((x0 + x1) / 2, (y0 + y1) / 2, 0),
+    new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false }));
+  p.add(new THREE.LineSegments(new THREE.EdgesGeometry(p.geometry), new THREE.LineBasicMaterial({ color: 0x777f88 })));
+  return p;
+}
+O.filmM1 = film(D.film_m1);
+O.filmM2 = film(D.film_m2);
+// active zone + contact pad outlines on the substrate
+mats.act.dashSize = 1.5 / S; mats.act.gapSize = 1.2 / S;
+O.marks = new THREE.Group();
+O.marks.add(outline(D.active, mats.act, 0.02));
+O.padFill = new THREE.Group();
+D.pads.forEach(pts => {
+  O.marks.add(outline(pts, mats.pad, 0.02));
+  const f = new THREE.Mesh(new THREE.ShapeGeometry(new THREE.Shape(pts.map(p => new THREE.Vector2(p[0], p[1])))),
+    new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.35, depthWrite: false }));
+  f.position.z = 0.015; O.padFill.add(f);
+});
+O.marks.add(O.padFill);
+// UV curtain above the film (not scaled: arrows keep their shape)
+O.uv = new THREE.Group();
+{
+  const [x0, y0, x1, y1] = D.film;
+  const slab = new THREE.Mesh(new THREE.BoxGeometry((x1 - x0) * S, (y1 - y0) * S, 1), mats.uv);
+  slab.position.set(((x0 + x1) / 2 - D.center[0]) * S, ((y0 + y1) / 2 - D.center[1]) * S, 0);
+  O.uv.add(slab); O.uvSlab = slab;
+  const arrows = new THREE.Group();
+  for (let i = -2; i <= 2; i++) for (let j = -2; j <= 2; j++) {
+    const a = new THREE.ArrowHelper(new THREE.Vector3(0, 0, -1), new THREE.Vector3(i * 22, j * 22, 0), 14, 0x6b3fd6, 3, 2);
+    arrows.add(a);
+  }
+  O.uv.add(arrows); O.uvArrows = arrows;
+}
+Object.entries(O).forEach(([k, o]) => { if (!['glassEdge', 'uvSlab', 'uvArrows', 'padFill'].includes(k)) (k === 'uv' ? scene : G).add(o); });
+
+// ---------- layout ----------
+let step = 0;
+const ex = document.getElementById('explode'), eg = document.getElementById('exag');
+function layout() {
+  const X = +ex.value, E = +eg.value, s = new Set(STEPS[step].show);
+  document.getElementById('explodeOut').textContent = X.toFixed(1) + ' mm';
+  document.getElementById('exagOut').textContent = '×' + E;
+  const z1 = X, z2 = 2 * X;
+  const hIns = T.ins * E, hDyn = (T.gap + T.cover) * E;
+  O.insSheet.position.z = z1; O.insSheet.scale.z = hIns;
+  O.insFrame.position.z = z1; O.insFrame.scale.z = hIns;
+  O.dynaSheet.position.z = z2; O.dynaSheet.scale.z = hDyn;
+  O.wall.position.z = z2; O.wall.scale.z = hDyn;
+  O.pillars.position.z = z2; O.pillars.scale.z = hDyn;
+  const zMesh = z2 + T.gap * E + 0.6 * X;
+  O.meshFull.position.z = O.meshCut.position.z = zMesh;
+  const top = zMesh + 2;
+  const twoFilms = s.has('filmM1') && s.has('filmM2');
+  O.filmM1.position.z = top + 10 + 1.5 * X;
+  O.filmM2.position.z = twoFilms ? top + 24 + 3 * X : top + 10 + 1.5 * X;
+  const zf = Math.max(s.has('filmM1') ? O.filmM1.position.z : 0, s.has('filmM2') ? O.filmM2.position.z : 0);
+  O.uv.position.z = zf + 8; O.uvSlab.position.z = 8; O.uvSlab.scale.z = 16; O.uvArrows.position.z = 18;
+  ['glass', 'insSheet', 'insFrame', 'dynaSheet', 'wall', 'pillars', 'meshFull', 'meshCut', 'filmM1', 'filmM2', 'uv', 'marks']
+    .forEach(k => { O[k].visible = s.has(k) || k === 'glass'; });
+}
+
+// ---------- UI ----------
+const list = document.getElementById('steps');
+STEPS.forEach((st, i) => {
+  const li = document.createElement('li');
+  const b = document.createElement('button'); b.type = 'button'; b.id = 'step-' + i;
+  b.innerHTML = `<span class="n">${i === 0 ? '—' : String(i).padStart(2, '0')}</span><span>${st.t}</span>`;
+  b.addEventListener('click', () => go(i));
+  li.appendChild(b); list.appendChild(li);
+});
+function go(i) {
+  step = Math.max(0, Math.min(STEPS.length - 1, i));
+  list.querySelectorAll('button').forEach((b, k) => {
+    if (k === step) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+  });
+  document.getElementById('desc').innerHTML = STEPS[step].d;
+  document.getElementById('badge').textContent = (step ? 'Step ' + step + ' · ' : '') + STEPS[step].t;
+  layout();
+}
+document.getElementById('prev').onclick = () => go(step - 1);
+document.getElementById('next').onclick = () => go(step + 1);
+ex.oninput = eg.oninput = layout;
+document.getElementById('dims').innerHTML = D.dims;
+document.getElementById('heading').textContent = D.heading;
+document.getElementById('subline').textContent = D.sub;
+document.getElementById('note').textContent = D.note;
+D.legend.forEach(([tok, text]) => {
+  const li = document.createElement('li'), sw = document.createElement('span');
+  sw.className = 'sw'; sw.style.background = `var(${tok})`; li.append(sw, text);
+  document.getElementById('legend').appendChild(li);
+});
+
+function theme() {
+  renderer.setClearColor(col('--scene'));
+  Object.entries(TOKENS).forEach(([k, t]) => mats[k].color.set(css(t)));
+  O.padFill.children.forEach(f => f.material.color.set(css('--pad')));
+  O.uvArrows.children.forEach(a => a.setColor(col('--accent')));
+}
+theme();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', theme);
+new MutationObserver(theme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+function resize() {
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  if (!w || !h) return;
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(canvas);
+resize();
+go(0);
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+controls.enableDamping = !reduce;
+(function loop() { controls.update(); renderer.render(scene, camera); requestAnimationFrame(loop); })();
+</script>
